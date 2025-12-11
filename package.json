@@ -1,0 +1,23 @@
+{
+  "name": "rumah-penghulu-pillars",
+  "version": "1.0.0",
+  "description": "Rumah Penghulu Abu Seman - Pillars Educational Website",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Static site - no build needed'",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@vercel/kv": "^1.0.1"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "heritage",
+    "architecture",
+    "education"
+  ],
+  "author": "",
+  "license": "MIT"
+}
+

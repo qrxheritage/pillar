@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Rumah Penghulu Abu Seman Pillars</title>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #8B4513;
+            --secondary-color: #D2691E;
+            --accent-color: #CD853F;
+            --dark-brown: #5C3317;
+            --light-bg: #FFF8F0;
+            --text-dark: #2C1810;
+            --text-light: #6B5244;
+            --correct: #38ef7d;
+            --incorrect: #f5576c;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, #FFF8F0 0%, #F5E6D3 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease;
+        }
+        
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+        
+        .quiz-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.8s ease;
+        }
+        
+        .question-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .question-number {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .question-text {
+            flex: 1;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            line-height: 1.4;
+        }
+        
+        .options {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .option {
+            background: #f8f8f8;
+            border: 3px solid transparent;
+            border-radius: 15px;
+            padding: 20px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.05rem;
+        }
+        
+        .option:hover:not(.selected):not(.disabled) {
+            background: #f0f0f0;
+            border-color: var(--accent-color);
+            transform: translateX(5px);
+        }
+        
+        .option.selected {
+            background: #e8f5e9;
+            border-color: var(--correct);
+            font-weight: 600;
+        }
+        
+        .option.correct {
+            background: #e8f5e9;
+            border-color: var(--correct);
+            animation: correctAnswer 0.5s ease;
+        }
+        
+        .option.incorrect {
+            background: #ffebee;
+            border-color: var(--incorrect);
+            animation: shake 0.5s ease;
+        }
+        
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .option-letter {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .option.correct .option-letter {
+            background: var(--correct);
+        }
+        
+        .option.incorrect .option-letter {
+            background: var(--incorrect);
+        }
+        
+        .feedback {
+            margin-top: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+        
+        .feedback.show {
+            display: flex;
+        }
+        
+        .feedback.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 5px solid var(--correct);
+        }
+        
+        .feedback.incorrect {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 5px solid var(--incorrect);
+        }
+        
+        .submit-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 18px 32px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 30px;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(17, 153, 142, 0.3);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .results-card {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 50px 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            animation: fadeInUp 0.8s ease;
+        }
+        
+        .results-card.show {
+            display: block;
+        }
+        
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            animation: scaleIn 0.6s ease;
+        }
+        
+        .score-circle.excellent {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        
+        .score-circle.good {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        
+        .score-circle.needs-improvement {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+        
+        .score-number {
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        
+        .score-label {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+        
+        .results-message {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .results-details {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(17, 153, 142, 0.3);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes correctAnswer {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .quiz-card {
+                padding: 25px;
+            }
+            
+            .question-text {
+                font-size: 1.1rem;
+            }
+            
+            .option {
+                padding: 15px 20px;
+                font-size: 0.95rem;
+            }
+            
+            .score-circle {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .score-number {
+                font-size: 3rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-brain"></i> Knowledge Quiz</h1>
+            <p class="subtitle">Test your knowledge about Rumah Penghulu Abu Seman</p>
+        </header>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+        </div>
+        
+        <div id="quizContainer">
+            <!-- Questions will be inserted here -->
+        </div>
+        
+        <button class="submit-btn" id="submitBtn" disabled>
+            <i class="fas fa-check-circle"></i>
+            Submit Quiz
+        </button>
+        
+        <div class="results-card" id="resultsCard">
+            <div class="score-circle" id="scoreCircle">
+                <div class="score-number" id="scoreNumber">0</div>
+                <div class="score-label">out of 4</div>
+            </div>
+            <h2 class="results-message" id="resultsMessage"></h2>
+            <p class="results-details" id="resultsDetails"></p>
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="retakeQuiz()">
+                    <i class="fas fa-redo"></i>
+                    Retake Quiz
+                </button>
+                <a href="index.html" class="btn btn-secondary">
+                    <i class="fas fa-home"></i>
+                    Back to Main Page
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const quizData = [
+            {
+                question: "Why was the construction method of Rumah Penghulu Abu Seman considered meticulous?",
+                options: [
+                    "It used only bricks and mortar",
+                    "It allowed the house to be easily deconstructed and moved",
+                    "It required advanced machinery",
+                    "It was built entirely underground"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is a key climatic design principle of traditional Malay houses mentioned in the text?",
+                options: [
+                    "Underground basements",
+                    "Elevated floors for cross ventilation",
+                    "Thick stone walls",
+                    "Solar panels on the roof"
+                ],
+                correct: 1
+            },
+            {
+                question: "Rumah Penghulu Abu Seman was originally located in which Malaysian state before being rebuilt in Kuala Lumpur?",
+                options: [
+                    "Penang",
+                    "Selangor",
+                    "Kedah",
+                    "Johor"
+                ],
+                correct: 2
+            },
+            {
+                question: "Which ancient technology allowed Rumah Penghulu Abu Seman to be dismantled and moved to a new location?",
+                options: [
+                    "Prefabricated timber elements joined without nails",
+                    "Concrete slab construction",
+                    "Prefabricated steel technology",
+                    "Modular plastic panels"
+                ],
+                correct: 0
+            }
+        ];
+        
+        let userAnswers = new Array(quizData.length).fill(null);
+        let quizStarted = false;
+        let quizCompleted = false;
+        
+        // Track quiz start
+        async function trackQuizStart() {
+            if (quizStarted) return;
+            quizStarted = true;
+            
+            try {
+                await fetch('/api/track-click', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ buttonType: 'quiz-start' })
+                });
+            } catch (error) {
+                console.log('Analytics tracking failed:', error);
+            }
+        }
+        
+        // Track quiz completion
+        async function trackQuizCompletion(score, percentage) {
+            if (quizCompleted) return;
+            quizCompleted = true;
+            
+            try {
+                await fetch('/api/track-click', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        buttonType: 'quiz-complete',
+                        score: score,
+                        percentage: percentage
+                    })
+                });
+            } catch (error) {
+                console.log('Analytics tracking failed:', error);
+            }
+        }
+        
+        // Initialize quiz
+        function initQuiz() {
+            const container = document.getElementById('quizContainer');
+            const letters = ['A', 'B', 'C', 'D'];
+            
+            quizData.forEach((q, qIndex) => {
+                const card = document.createElement('div');
+                card.className = 'quiz-card';
+                card.innerHTML = `
+                    <div class="question-header">
+                        <div class="question-number">${qIndex + 1}</div>
+                        <div class="question-text">${q.question}</div>
+                    </div>
+                    <div class="options">
+                        ${q.options.map((option, oIndex) => `
+                            <div class="option" data-question="${qIndex}" data-option="${oIndex}">
+                                <div class="option-letter">${letters[oIndex]}</div>
+                                <span>${option}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="feedback" id="feedback-${qIndex}"></div>
+                `;
+                container.appendChild(card);
+            });
+            
+            // Add click handlers
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', handleOptionClick);
+            });
+            
+            updateProgress();
+        }
+        
+        function handleOptionClick(e) {
+            // Track quiz start on first interaction
+            trackQuizStart();
+            
+            const optionEl = e.currentTarget;
+            const qIndex = parseInt(optionEl.dataset.question);
+            const oIndex = parseInt(optionEl.dataset.option);
+            
+            // Deselect other options in this question
+            document.querySelectorAll(`.option[data-question="${qIndex}"]`).forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Select this option
+            optionEl.classList.add('selected');
+            userAnswers[qIndex] = oIndex;
+            
+            // Update progress and enable submit if all answered
+            updateProgress();
+            checkAllAnswered();
+        }
+        
+        function updateProgress() {
+            const answered = userAnswers.filter(a => a !== null).length;
+            const percentage = (answered / quizData.length) * 100;
+            document.getElementById('progressBar').style.width = percentage + '%';
+        }
+        
+        function checkAllAnswered() {
+            const allAnswered = userAnswers.every(a => a !== null);
+            document.getElementById('submitBtn').disabled = !allAnswered;
+        }
+        
+        function submitQuiz() {
+            let score = 0;
+            
+            // Disable all options
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.add('disabled');
+                opt.style.cursor = 'not-allowed';
+            });
+            
+            // Check answers and show feedback
+            quizData.forEach((q, qIndex) => {
+                const userAnswer = userAnswers[qIndex];
+                const isCorrect = userAnswer === q.correct;
+                
+                if (isCorrect) score++;
+                
+                // Highlight correct/incorrect
+                const options = document.querySelectorAll(`.option[data-question="${qIndex}"]`);
+                options[userAnswer].classList.add(isCorrect ? 'correct' : 'incorrect');
+                
+                if (!isCorrect) {
+                    options[q.correct].classList.add('correct');
+                }
+                
+                // Show feedback
+                const feedback = document.getElementById(`feedback-${qIndex}`);
+                feedback.className = `feedback show ${isCorrect ? 'correct' : 'incorrect'}`;
+                feedback.innerHTML = `
+                    <i class="fas fa-${isCorrect ? 'check-circle' : 'times-circle'}"></i>
+                    <span>${isCorrect ? 'Correct!' : 'Incorrect. The correct answer is: ' + q.options[q.correct]}</span>
+                `;
+            });
+            
+            // Hide submit button
+            document.getElementById('submitBtn').style.display = 'none';
+            
+            // Show results
+            setTimeout(() => {
+                showResults(score);
+            }, 1500);
+        }
+        
+        function showResults(score) {
+            const percentage = Math.round((score / quizData.length) * 100);
+            const resultsCard = document.getElementById('resultsCard');
+            const scoreCircle = document.getElementById('scoreCircle');
+            const scoreNumber = document.getElementById('scoreNumber');
+            const resultsMessage = document.getElementById('resultsMessage');
+            const resultsDetails = document.getElementById('resultsDetails');
+            
+            // Set score
+            scoreNumber.textContent = score;
+            
+            // Set message and style based on score
+            let category, message, details;
+            if (score === 4) {
+                category = 'excellent';
+                message = '🎉 Perfect Score!';
+                details = 'Outstanding! You have excellent knowledge about Rumah Penghulu Abu Seman.';
+            } else if (score >= 3) {
+                category = 'excellent';
+                message = '🌟 Great Job!';
+                details = 'Well done! You have a good understanding of traditional Malay architecture.';
+            } else if (score >= 2) {
+                category = 'good';
+                message = '👍 Good Effort!';
+                details = 'Not bad! Review the content to learn more about the pillars.';
+            } else {
+                category = 'needs-improvement';
+                message = '📚 Keep Learning!';
+                details = 'Take your time to explore the content and try again!';
+            }
+            
+            scoreCircle.className = `score-circle ${category}`;
+            resultsMessage.textContent = message;
+            resultsDetails.textContent = details;
+            
+            // Track completion
+            trackQuizCompletion(score, percentage);
+            
+            // Show results card
+            resultsCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            resultsCard.classList.add('show');
+        }
+        
+        function retakeQuiz() {
+            // Reset state
+            userAnswers = new Array(quizData.length).fill(null);
+            quizCompleted = false;
+            
+            // Hide results
+            document.getElementById('resultsCard').classList.remove('show');
+            
+            // Reset quiz
+            document.getElementById('quizContainer').innerHTML = '';
+            document.getElementById('submitBtn').style.display = 'flex';
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('progressBar').style.width = '0%';
+            
+            // Reinitialize
+            initQuiz();
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Event listeners
+        document.getElementById('submitBtn').addEventListener('click', submitQuiz);
+        
+        // Initialize on load
+        initQuiz();
+    </script>
+</body>
+</html>
+
