@@ -230,12 +230,18 @@
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-chart-line"></i> Analytics Dashboard</h1>
-            <p class="subtitle">Rumah Penghulu Abu Seman - Visitor Engagement</p>
-            <a href="index.html" class="back-button">
-                <i class="fas fa-arrow-left"></i>
-                Back to Main Site
-            </a>
+            <h1><i class="fas fa-chart-line"></i> Quiz Analytics Dashboard</h1>
+            <p class="subtitle">Rumah Penghulu Abu Seman - Quiz Performance Tracking</p>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px; flex-wrap: wrap;">
+                <a href="index.html" class="back-button">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Main Site
+                </a>
+                <button onclick="logout()" class="back-button" style="background: rgba(255, 69, 58, 0.2); border: 2px solid rgba(255, 69, 58, 0.3); cursor: pointer;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
         </header>
         
         <div id="statsContainer">
@@ -252,24 +258,47 @@
         <div class="info-card">
             <h2 class="info-title"><i class="fas fa-info-circle"></i> About This Dashboard</h2>
             <p style="line-height: 1.8; color: var(--text-light); margin-bottom: 20px;">
-                This dashboard tracks visitor engagement with the educational content about Rumah Penghulu Abu Seman's pillars.
+                This dashboard tracks quiz performance and visitor engagement with the educational quiz about Rumah Penghulu Abu Seman's pillars.
             </p>
             <div style="display: grid; gap: 15px;">
                 <div style="padding: 15px; background: #f8f8f8; border-radius: 10px; border-left: 4px solid #11998e;">
-                    <strong style="color: var(--primary-color);">📊 Completion Rate:</strong><br>
-                    <span style="color: var(--text-light);">Percentage of visitors who clicked the quiz button and actually completed the quiz. Formula: (Quiz Completed ÷ Quiz Button Clicks) × 100%</span>
+                    <strong style="color: var(--primary-color);">🎯 Quiz Button Clicks:</strong><br>
+                    <span style="color: var(--text-light);">Number of times visitors clicked the "Take the Quiz" button to navigate to the quiz page.</span>
+                </div>
+                <div style="padding: 15px; background: #f8f8f8; border-radius: 10px; border-left: 4px solid #38ef7d;">
+                    <strong style="color: var(--primary-color);">✅ Quiz Completed:</strong><br>
+                    <span style="color: var(--text-light);">Number of visitors who completed the entire quiz and submitted their answers.</span>
                 </div>
                 <div style="padding: 15px; background: #f8f8f8; border-radius: 10px; border-left: 4px solid #fa709a;">
-                    <strong style="color: var(--primary-color);">📈 Engagement Rate:</strong><br>
-                    <span style="color: var(--text-light);">Percentage of visitors who clicked the quiz button and started answering questions. Formula: (Quiz Started ÷ Quiz Button Clicks) × 100%</span>
+                    <strong style="color: var(--primary-color);">📊 Completion Rate:</strong><br>
+                    <span style="color: var(--text-light);">Percentage of visitors who clicked the quiz button and actually completed it. Formula: (Quiz Completed ÷ Quiz Button Clicks) × 100%</span>
+                </div>
+                <div style="padding: 15px; background: #f8f8f8; border-radius: 10px; border-left: 4px solid #f5576c;">
+                    <strong style="color: var(--primary-color);">⭐ Average Score:</strong><br>
+                    <span style="color: var(--text-light);">Average score achieved by all visitors who completed the quiz. The quiz has 4 questions, showing scores like "3.5/4" (3.5 out of 4).</span>
                 </div>
             </div>
+        </div>
+        
+        <div class="info-card" id="scoresCard" style="display: none;">
+            <h2 class="info-title"><i class="fas fa-list-ol"></i> Recent Quiz Scores</h2>
+            <div id="recentScores"></div>
         </div>
         
         <div class="last-updated" id="lastUpdated"></div>
     </div>
     
     <script>
+        // Check authentication on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            // Server-side auth middleware now handles this check
+            const token = sessionStorage.getItem('adminToken');
+            if (!token) {
+                // Redirect if no token is found at all
+                window.location.href = 'login.html';
+            }
+        });
+        
         async function loadStats() {
             const statsContainer = document.getElementById('statsContainer');
             const refreshButton = document.querySelector('.refresh-button');
@@ -278,44 +307,41 @@
             statsContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading analytics data...</div>';
             
             try {
-                const response = await fetch('/api/get-stats');
+                const token = sessionStorage.getItem('adminToken');
+                if (!token) {
+                    // This should ideally not happen if the entry check is working,
+                    // but as a fallback, redirect to login.
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const response = await fetch('/api/get-stats', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
                 const data = await response.json();
+                
+                if (response.status === 401) {
+                    // Token is invalid or expired
+                    window.location.href = 'login.html';
+                    return;
+                }
                 
                 if (data.success) {
                     const stats = data.stats;
                     
+                    // Format average score display
+                    const avgScoreDisplay = stats.averageScore > 0 
+                        ? `${stats.averageScore}/4` 
+                        : '<span style="font-size: 1.5rem;">No data yet</span>';
+                    
                     statsContainer.innerHTML = `
                         <div class="stats-grid">
-                            <div class="stat-card total">
-                                <div class="stat-icon"><i class="fas fa-mouse-pointer"></i></div>
-                                <div class="stat-value">${stats.totalClicks}</div>
-                                <div class="stat-label">Total Clicks</div>
-                            </div>
-                            
-                            <div class="stat-card model">
-                                <div class="stat-icon"><i class="fas fa-cube"></i></div>
-                                <div class="stat-value">${stats.modelClicks}</div>
-                                <div class="stat-label">3D Model Views</div>
-                            </div>
-                            
-                            <div class="stat-card feedback">
-                                <div class="stat-icon"><i class="fas fa-comment-dots"></i></div>
-                                <div class="stat-value">${stats.feedbackClicks}</div>
-                                <div class="stat-label">Feedback Submissions</div>
-                            </div>
-                            
                             <div class="stat-card quiz">
                                 <div class="stat-icon"><i class="fas fa-brain"></i></div>
                                 <div class="stat-value">${stats.quizClicks}</div>
                                 <div class="stat-label">Quiz Button Clicks</div>
-                            </div>
-                        </div>
-                        
-                        <div class="stats-grid" style="margin-top: 25px;">
-                            <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                                <div class="stat-icon"><i class="fas fa-play"></i></div>
-                                <div class="stat-value">${stats.quizStarts}</div>
-                                <div class="stat-label">Quiz Started</div>
                             </div>
                             
                             <div class="stat-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white;">
@@ -330,16 +356,61 @@
                                 <div class="stat-label">Completion Rate</div>
                             </div>
                             
-                            <div class="stat-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
-                                <div class="stat-icon"><i class="fas fa-percentage"></i></div>
-                                <div class="stat-value">${stats.engagementRate}</div>
-                                <div class="stat-label">Engagement Rate</div>
+                            <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                                <div class="stat-icon"><i class="fas fa-star"></i></div>
+                                <div class="stat-value">${avgScoreDisplay}</div>
+                                <div class="stat-label">Average Score</div>
                             </div>
                         </div>
                     `;
                     
                     document.getElementById('lastUpdated').innerHTML = 
                         `<i class="fas fa-clock"></i> Last updated: ${new Date(data.timestamp).toLocaleString()}`;
+                    
+                    // Show recent scores if available
+                    if (data.recentScores && data.recentScores.length > 0) {
+                        const scoresCard = document.getElementById('scoresCard');
+                        const recentScoresDiv = document.getElementById('recentScores');
+                        
+                        scoresCard.style.display = 'block';
+                        
+                        const scoresHTML = data.recentScores.slice(0, 10).map((scoreData, index) => {
+                            const percentage = scoreData.percentage;
+                            let emoji = '🌟';
+                            let color = '#11998e';
+                            
+                            if (percentage === 100) {
+                                emoji = '🏆';
+                                color = '#FFD700';
+                            } else if (percentage >= 75) {
+                                emoji = '⭐';
+                                color = '#38ef7d';
+                            } else if (percentage >= 50) {
+                                emoji = '👍';
+                                color = '#4facfe';
+                            } else {
+                                emoji = '📚';
+                                color = '#fa709a';
+                            }
+                            
+                            const date = new Date(scoreData.timestamp).toLocaleString();
+                            
+                            return `
+                                <div style="padding: 15px; margin-bottom: 10px; background: #f8f8f8; border-radius: 10px; border-left: 4px solid ${color}; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <span style="font-size: 1.5rem; margin-right: 10px;">${emoji}</span>
+                                        <strong style="font-size: 1.2rem; color: var(--primary-color);">${scoreData.score}/4</strong>
+                                        <span style="color: var(--text-light); margin-left: 10px;">(${percentage}%)</span>
+                                    </div>
+                                    <div style="font-size: 0.85rem; color: var(--text-light);">
+                                        ${date}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                        
+                        recentScoresDiv.innerHTML = scoresHTML;
+                    }
                 } else {
                     throw new Error('Failed to load stats');
                 }
@@ -357,6 +428,37 @@
                 refreshButton.disabled = false;
             }
         }
+        
+        // Logout function with API call
+        async function logout() {
+            const token = sessionStorage.getItem('adminToken');
+            try {
+                // Call logout API to invalidate token
+                if (token) {
+                    await fetch('/api/admin-logout', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+            } finally {
+                // Clear session storage and redirect
+                sessionStorage.removeItem('adminToken');
+                sessionStorage.removeItem('adminLoggedIn');
+                window.location.href = 'login.html';
+            }
+        }
+        
+        // Check token expiration periodically
+        setInterval(() => {
+            const token = sessionStorage.getItem('adminToken');
+            if (!token) {
+                window.location.href = 'login.html';
+            }
+        }, 60000); // Check every minute
         
         // Load stats on page load
         loadStats();

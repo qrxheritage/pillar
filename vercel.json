@@ -1,24 +1,13 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
+  "buildCommand": "npm install",
+  "outputDirectory": ".",
+  "framework": "express",
+  "serverlessFunctionRegion": "auto",
+  "env": [
+    "ADMIN_USERNAME",
+    "ADMIN_PASSWORD",
+    "ALLOWED_ORIGINS",
+    "REDIS_URL",
+    "REDIS_REST_TOKEN"
   ]
 }
-

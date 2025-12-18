@@ -1,8 +1,10 @@
 node_modules/
 .vercel
 .env
+data/clicks.json
 .env*.local
 *.log
 .DS_Store
 Thumbs.db
+ADMIN_CREDENTIALS.md
 
