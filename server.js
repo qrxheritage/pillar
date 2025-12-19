@@ -56,11 +56,6 @@ const authMiddleware = async (req, res, next) => {
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Serve dashboard.html explicitly before API routes
-app.get('/dashboard.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dashboard.html'));
-});
-
 // API Routes
 app.post('/api/track-click', async (req, res) => {
   await trackClickHandler(req, res);
