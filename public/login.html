@@ -265,8 +265,8 @@
         const loginBtn = document.getElementById('loginBtn');
         
         // Check if already logged in
-        if (sessionStorage.getItem('adminLoggedIn') === 'true') {
-            window.location.href = 'dashboard.html';
+        if (localStorage.getItem('adminLoggedIn') === 'true') {
+            window.location.href = '/dashboard.html';
         }
         
         loginForm.addEventListener('submit', async (e) => {
@@ -290,9 +290,9 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Store login state
-                    sessionStorage.setItem('adminLoggedIn', 'true');
-                    sessionStorage.setItem('adminToken', data.token);
+                    // Store login state in localStorage (persists across page navigations)
+                    localStorage.setItem('adminLoggedIn', 'true');
+                    localStorage.setItem('adminToken', data.token);
                     
                     // Redirect to dashboard
                     window.location.href = '/dashboard.html';

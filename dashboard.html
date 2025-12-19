@@ -291,11 +291,11 @@
     <script>
         // Check authentication on page load
         window.addEventListener('DOMContentLoaded', () => {
-            // Server-side auth middleware now handles this check
-            const token = sessionStorage.getItem('adminToken');
+            // Check for token in localStorage (persists across navigations)
+            const token = localStorage.getItem('adminToken');
             if (!token) {
-                // Redirect if no token is found at all
-                window.location.href = 'login.html';
+                // Redirect if no token is found
+                window.location.href = '/login.html';
             }
         });
         
@@ -307,7 +307,7 @@
             statsContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading analytics data...</div>';
             
             try {
-                const token = sessionStorage.getItem('adminToken');
+                const token = localStorage.getItem('adminToken');
                 if (!token) {
                     // This should ideally not happen if the entry check is working,
                     // but as a fallback, redirect to login.
@@ -431,7 +431,7 @@
         
         // Logout function with API call
         async function logout() {
-            const token = sessionStorage.getItem('adminToken');
+            const token = localStorage.getItem('adminToken');
             try {
                 // Call logout API to invalidate token
                 if (token) {
@@ -445,18 +445,18 @@
             } catch (error) {
                 console.error('Logout error:', error);
             } finally {
-                // Clear session storage and redirect
-                sessionStorage.removeItem('adminToken');
-                sessionStorage.removeItem('adminLoggedIn');
-                window.location.href = 'login.html';
+                // Clear localStorage and redirect
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminLoggedIn');
+                window.location.href = '/login.html';
             }
         }
         
         // Check token expiration periodically
         setInterval(() => {
-            const token = sessionStorage.getItem('adminToken');
+            const token = localStorage.getItem('adminToken');
             if (!token) {
-                window.location.href = 'login.html';
+                window.location.href = '/login.html';
             }
         }, 60000); // Check every minute
         
