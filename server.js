@@ -56,6 +56,11 @@ const authMiddleware = async (req, res, next) => {
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Serve dashboard.html explicitly before API routes
+app.get('/dashboard.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
+
 // API Routes
 app.post('/api/track-click', async (req, res) => {
   await trackClickHandler(req, res);
@@ -78,9 +83,9 @@ app.post('/api/admin-logout', (req, res) => {
   res.json({ success: true, message: 'Logged out successfully' });
 });
 
-// Serve dashboard.html without authentication check (the page will check client-side)
-app.get('/dashboard.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dashboard.html'));
+// Catch-all for SPA routing - serve index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Start server
