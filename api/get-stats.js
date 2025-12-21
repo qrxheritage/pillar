@@ -2,32 +2,24 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getRedisClient, getJson } from './redis-client.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Path to data file
+// Path to data file (local fallback)
 const DATA_FILE = path.join(__dirname, '..', 'data', 'clicks.json');
 
-// Read data from JSON file
-function readData() {
+function readLocalData() {
   try {
     if (!fs.existsSync(DATA_FILE)) {
-      return {
-        total: 0,
-        buttons: {},
-        history: {}
-      };
+      return { total: 0, buttons: {}, history: {} };
     }
     const data = fs.readFileSync(DATA_FILE, 'utf8');
     return JSON.parse(data);
   } catch (error) {
-    console.error('Error reading data:', error);
-    return {
-      total: 0,
-      buttons: {},
-      history: {}
-    };
+    console.error('Error reading local data:', error);
+    return { total: 0, buttons: {}, history: {} };
   }
 }
 
@@ -48,8 +40,15 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Read data
-    const data = readData();
+    // Read data (Redis if configured, otherwise local file)
+    const redis = getRedisClient();
+    let data;
+    if (redis) {
+      data = await getJson('pillar:clicks', null);
+      if (!data) data = readLocalData();
+    } else {
+      data = readLocalData();
+    }
 
     // Get quiz-related counts only
     const quizClicks = data.buttons['quiz'] || 0;

@@ -2,55 +2,53 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getRedisClient, getJson, setJson } from './redis-client.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Path to data file
+// Path to data file (local fallback)
 const DATA_FILE = path.join(__dirname, '..', 'data', 'clicks.json');
 
 // Initialize data structure
 function initializeData() {
-  const defaultData = {
+  return {
     total: 0,
     buttons: {},
     history: {}
   };
-  
-  // Create data directory if it doesn't exist
-  const dataDir = path.dirname(DATA_FILE);
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-  
-  // Create file if it doesn't exist
-  if (!fs.existsSync(DATA_FILE)) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(defaultData, null, 2));
-  }
-  
-  return defaultData;
 }
 
-// Read data from JSON file
-function readData() {
+// Local filesystem read/write (fallback)
+function ensureLocalFile() {
+  const dataDir = path.dirname(DATA_FILE);
+  if (!fs.existsSync(dataDir)) {
+    try { fs.mkdirSync(dataDir, { recursive: true }); } catch (e) {}
+  }
+  if (!fs.existsSync(DATA_FILE)) {
+    try { fs.writeFileSync(DATA_FILE, JSON.stringify(initializeData(), null, 2)); } catch (e) {}
+  }
+}
+
+function readLocalData() {
   try {
     if (!fs.existsSync(DATA_FILE)) {
+      ensureLocalFile();
       return initializeData();
     }
     const data = fs.readFileSync(DATA_FILE, 'utf8');
     return JSON.parse(data);
   } catch (error) {
-    console.error('Error reading data:', error);
+    console.error('Error reading local data:', error);
     return initializeData();
   }
 }
 
-// Write data to JSON file
-function writeData(data) {
+function writeLocalData(data) {
   try {
     fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
   } catch (error) {
-    console.error('Error writing data:', error);
+    console.error('Error writing local data:', error);
     throw error;
   }
 }
@@ -78,8 +76,16 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Button type is required' });
     }
 
-    // Read current data
-    const data = readData();
+    // Determine storage method: Redis if configured, otherwise local file
+    const redis = getRedisClient();
+    let data;
+
+    if (redis) {
+      data = await getJson('pillar:clicks', initializeData());
+      if (!data) data = initializeData();
+    } else {
+      data = readLocalData();
+    }
 
     // Initialize button data if it doesn't exist
     if (!data.buttons[buttonType]) {
@@ -124,7 +130,16 @@ export default async function handler(req, res) {
     }
 
     // Write updated data
-    writeData(data);
+    if (redis) {
+      try {
+        await setJson('pillar:clicks', data);
+      } catch (err) {
+        console.error('Failed to write to Redis, falling back to local file:', err);
+        try { writeLocalData(data); } catch (e) { console.error('Local fallback failed:', e); }
+      }
+    } else {
+      writeLocalData(data);
+    }
 
     return res.status(200).json({
       success: true,
