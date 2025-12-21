@@ -77,7 +77,7 @@ export default async function handler(req, res) {
     }
 
     // Determine storage method: Redis if configured, otherwise local file
-    const redis = getRedisClient();
+    const redis = await getRedisClient();
     let data;
 
     if (redis) {
