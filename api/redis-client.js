@@ -1,39 +1,46 @@
-import { Redis } from '@upstash/redis';
+import { createClient } from 'redis';
 
 let client = null;
+let connected = false;
 
-export function getRedisClient() {
-  if (client) return client;
+export async function getRedisClient() {
+  // Return existing client if already connected
+  if (client && connected) return client;
 
-  // Prioritize REST URLs (HTTP) over direct redis:// protocol
-  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.REDIS_REST_URL || process.env.REDIS_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.REDIS_REST_TOKEN || process.env.REDIS_TOKEN;
-
-  if (!url || !token) {
-    console.warn('Redis not configured: missing URL or TOKEN env vars');
-    return null;
-  }
-
-  // Only use REST API (HTTP) URLs with @upstash/redis
-  if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    console.warn('Redis URL must be HTTP/HTTPS REST endpoint, not redis:// protocol');
+  const redisUrl = process.env.REDIS_URL;
+  if (!redisUrl) {
+    console.warn('Redis not configured: missing REDIS_URL env var');
     return null;
   }
 
   try {
-    client = new Redis({ url, token });
-    console.log('Redis client initialized');
+    client = createClient({ url: redisUrl });
+    
+    client.on('error', err => {
+      console.error('Redis client error:', err);
+      connected = false;
+    });
+
+    client.on('connect', () => {
+      console.log('Redis connected');
+      connected = true;
+    });
+
+    await client.connect();
+    connected = true;
+    console.log('Redis client initialized and connected');
     return client;
   } catch (err) {
     console.error('Failed to initialize Redis client:', err);
+    connected = false;
     return null;
   }
 }
 
 export async function getJson(key, fallback = null) {
-  const r = getRedisClient();
-  if (!r) return fallback;
   try {
+    const r = await getRedisClient();
+    if (!r) return fallback;
     const v = await r.get(key);
     return v ? JSON.parse(v) : fallback;
   } catch (err) {
@@ -43,9 +50,9 @@ export async function getJson(key, fallback = null) {
 }
 
 export async function setJson(key, value) {
-  const r = getRedisClient();
-  if (!r) throw new Error('Redis not configured');
   try {
+    const r = await getRedisClient();
+    if (!r) throw new Error('Redis not configured');
     await r.set(key, JSON.stringify(value));
   } catch (err) {
     console.error('Redis set error:', err);
