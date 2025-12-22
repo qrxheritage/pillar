@@ -29,8 +29,10 @@ export default async function handler(req, res) {
     // Track quiz completion with score data
     if (buttonType === 'quiz-complete' && score !== undefined && score !== null) {
       try {
+        console.log('📊 Tracking quiz completion:', { score, percentage });
         await trackQuizCompletion(score, percentage, 10); // Assuming 10 questions
         await trackClick(buttonType);
+        console.log('✅ Quiz completion tracked successfully');
         
         return res.status(200).json({
           success: true,
@@ -40,14 +42,19 @@ export default async function handler(req, res) {
           timestamp
         });
       } catch (error) {
-        console.error('Error tracking quiz completion:', error);
-        // Continue to track as regular click if Supabase fails
+        console.error('❌ Error tracking quiz completion:', error.message);
+        return res.status(500).json({ 
+          error: 'Failed to track quiz completion',
+          details: error.message 
+        });
       }
     }
 
     // Track regular click
     try {
+      console.log('🔘 Tracking click:', buttonType);
       await trackClick(buttonType);
+      console.log('✅ Click tracked successfully');
       
       return res.status(200).json({
         success: true,
@@ -55,7 +62,7 @@ export default async function handler(req, res) {
         timestamp
       });
     } catch (error) {
-      console.error('Error tracking click:', error);
+      console.error('❌ Error tracking click:', error.message);
       return res.status(500).json({ 
         error: 'Failed to track click',
         details: error.message 

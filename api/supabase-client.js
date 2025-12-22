@@ -9,16 +9,19 @@ export function getSupabaseClient() {
   const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    console.warn('Supabase not configured: missing SUPABASE_URL or SUPABASE_ANON_KEY env vars');
+    console.error('❌ Supabase not configured!');
+    console.error('Missing environment variables:');
+    console.error('- SUPABASE_URL:', supabaseUrl ? '✓ Set' : '✗ Missing');
+    console.error('- SUPABASE_ANON_KEY:', supabaseKey ? '✓ Set' : '✗ Missing');
     return null;
   }
 
   try {
     supabase = createClient(supabaseUrl, supabaseKey);
-    console.log('Supabase client initialized');
+    console.log('✅ Supabase client initialized successfully');
     return supabase;
   } catch (err) {
-    console.error('Failed to initialize Supabase client:', err);
+    console.error('❌ Failed to initialize Supabase client:', err);
     return null;
   }
 }
