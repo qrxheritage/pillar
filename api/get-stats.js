@@ -1,27 +1,5 @@
-// Local JSON-based function to get analytics statistics
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { getRedisClient, getJson } from './redis-client.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Path to data file (local fallback)
-const DATA_FILE = path.join(__dirname, '..', 'data', 'clicks.json');
-
-function readLocalData() {
-  try {
-    if (!fs.existsSync(DATA_FILE)) {
-      return { total: 0, buttons: {}, history: {} };
-    }
-    const data = fs.readFileSync(DATA_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading local data:', error);
-    return { total: 0, buttons: {}, history: {} };
-  }
-}
+// Get analytics statistics from Supabase
+import { getClickStats, getQuizStats } from './supabase-client.js';
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -40,37 +18,26 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Read data (Redis if configured, otherwise local file)
-    const redis = await getRedisClient();
-    let data;
-    if (redis) {
-      data = await getJson('pillar:clicks', null);
-      if (!data) data = readLocalData();
-    } else {
-      data = readLocalData();
+    // Get click statistics
+    const clickStats = await getClickStats();
+    if (!clickStats) {
+      return res.status(500).json({ error: 'Failed to retrieve click statistics' });
     }
 
-    // Get quiz-related counts only
-    const quizClicks = data.buttons['quiz'] || 0;
-    const quizCompletions = data.buttons['quiz-complete'] || 0;
+    // Get quiz statistics
+    const quizStats = await getQuizStats();
+    if (!quizStats) {
+      return res.status(500).json({ error: 'Failed to retrieve quiz statistics' });
+    }
 
-    // Calculate completion rate (quiz completions / quiz button clicks)
+    // Get quiz-related counts
+    const quizClicks = clickStats.buttons['quiz'] || 0;
+    const quizCompletions = clickStats.buttons['quiz-complete'] || 0;
+
+    // Calculate completion rate
     const completionRate = quizClicks > 0 
       ? ((quizCompletions / quizClicks) * 100).toFixed(2) 
       : 0;
-
-    // Calculate average score
-    let averageScore = 0;
-    let averagePercentage = 0;
-    if (data.quizScores && data.quizScores.length > 0) {
-      const totalScore = data.quizScores.reduce((sum, item) => sum + item.score, 0);
-      const totalPercentage = data.quizScores.reduce((sum, item) => sum + item.percentage, 0);
-      averageScore = (totalScore / data.quizScores.length).toFixed(2);
-      averagePercentage = (totalPercentage / data.quizScores.length).toFixed(2);
-    }
-
-    // Get recent scores (last 10)
-    const recentScores = data.quizScores ? data.quizScores.slice(-10).reverse() : [];
 
     return res.status(200).json({
       success: true,
@@ -78,11 +45,11 @@ export default async function handler(req, res) {
         quizClicks,
         quizCompletions,
         completionRate: `${completionRate}%`,
-        averageScore: averageScore,
-        averagePercentage: `${averagePercentage}%`,
-        totalAttempts: data.quizScores ? data.quizScores.length : 0
+        averageScore: quizStats.averageScore,
+        averagePercentage: `${quizStats.averagePercentage}%`,
+        totalAttempts: quizStats.totalAttempts
       },
-      recentScores: recentScores,
+      recentScores: quizStats.recentScores,
       timestamp: new Date().toISOString()
     });
 
