@@ -35,6 +35,22 @@ CREATE TABLE quiz_completions (
 CREATE INDEX idx_quiz_completions_timestamp ON quiz_completions(timestamp DESC);
 ```
 
+### 3. admin_sessions Table
+
+```sql
+CREATE TABLE admin_sessions (
+  id BIGSERIAL PRIMARY KEY,
+  token TEXT NOT NULL UNIQUE,
+  username TEXT NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Add index for faster queries
+CREATE INDEX idx_admin_sessions_token ON admin_sessions(token);
+CREATE INDEX idx_admin_sessions_expires_at ON admin_sessions(expires_at);
+```
+
 ## Environment Variables
 
 Add these to your `.env` file or Vercel environment variables:
@@ -58,6 +74,7 @@ For security, enable RLS and create policies:
 -- Enable RLS on both tables
 ALTER TABLE click_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE quiz_completions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admin_sessions ENABLE ROW LEVEL SECURITY;
 
 -- Allow anonymous inserts (for tracking)
 CREATE POLICY "Allow anonymous inserts on click_events"
@@ -68,6 +85,13 @@ WITH CHECK (true);
 CREATE POLICY "Allow anonymous inserts on quiz_completions"
 ON quiz_completions FOR INSERT
 TO anon
+WITH CHECK (true);
+
+-- Allow service role to manage admin sessions
+CREATE POLICY "Allow all operations on admin_sessions"
+ON admin_sessions FOR ALL
+TO anon, authenticated
+USING (true)
 WITH CHECK (true);
 
 -- Allow authenticated reads (for dashboard)

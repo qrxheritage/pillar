@@ -1,11 +1,5 @@
-// Verify admin authentication
-
-// Simple in-memory session storage (in production, use Redis or database)
-const activeSessions = new Map();
-
-export function verifyToken(token) {
-  return activeSessions.has(token);
-}
+// Verify admin authentication using Supabase
+import { getSession } from './supabase-client.js';
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -33,9 +27,9 @@ export default async function handler(req, res) {
       });
     }
 
-    // For this simple implementation, any valid session storage token is accepted
-    // In production, verify against your session storage
-    const isValid = token && token.length > 0;
+    // Verify token with Supabase
+    const session = await getSession(token);
+    const isValid = session !== null;
 
     return res.status(200).json({
       success: true,

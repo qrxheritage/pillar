@@ -145,3 +145,90 @@ export async function getQuizStats() {
     throw err;
   }
 }
+
+// Session management functions
+export async function createSession(username, token, expiresAt) {
+  const client = getSupabaseClient();
+  if (!client) throw new Error('Supabase client not available');
+
+  try {
+    const { data, error } = await client
+      .from('admin_sessions')
+      .insert([
+        {
+          token,
+          username,
+          expires_at: expiresAt,
+          created_at: new Date().toISOString()
+        }
+      ])
+      .select();
+
+    if (error) throw error;
+    return data[0];
+  } catch (err) {
+    console.error('Error creating session:', err);
+    throw err;
+  }
+}
+
+export async function getSession(token) {
+  const client = getSupabaseClient();
+  if (!client) return null;
+
+  try {
+    const { data, error } = await client
+      .from('admin_sessions')
+      .select('*')
+      .eq('token', token)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null; // Not found
+      throw error;
+    }
+
+    // Check if session has expired
+    if (new Date(data.expires_at) < new Date()) {
+      await deleteSession(token);
+      return null;
+    }
+
+    return data;
+  } catch (err) {
+    console.error('Error getting session:', err);
+    return null;
+  }
+}
+
+export async function deleteSession(token) {
+  const client = getSupabaseClient();
+  if (!client) return;
+
+  try {
+    const { error } = await client
+      .from('admin_sessions')
+      .delete()
+      .eq('token', token);
+
+    if (error) throw error;
+  } catch (err) {
+    console.error('Error deleting session:', err);
+  }
+}
+
+export async function cleanExpiredSessions() {
+  const client = getSupabaseClient();
+  if (!client) return;
+
+  try {
+    const { error } = await client
+      .from('admin_sessions')
+      .delete()
+      .lt('expires_at', new Date().toISOString());
+
+    if (error) throw error;
+  } catch (err) {
+    console.error('Error cleaning expired sessions:', err);
+  }
+}
