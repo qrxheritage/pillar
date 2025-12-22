@@ -53,46 +53,6 @@
             border-radius: 20px;
             margin-bottom: 30px;
             animation: fadeInDown 0.8s ease;
-            position: relative;
-        }
-        
-        .language-selector {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-        }
-        
-        .lang-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            padding: 8px 14px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-family: 'Inter', sans-serif;
-        }
-        
-        .lang-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
-            transform: translateY(-2px);
-        }
-        
-        .lang-btn.active {
-            background: white;
-            color: #11998e;
-            border-color: white;
-            font-weight: 600;
         }
         
         h1 {
@@ -443,13 +403,6 @@
                 font-size: 1.8rem;
             }
             
-            .language-selector {
-                position: static;
-                margin-bottom: 20px;
-                width: 100%;
-                justify-content: center;
-            }
-            
             .quiz-card {
                 padding: 25px;
             }
@@ -486,18 +439,17 @@
     <div class="container">
         <header>
             <!-- Language Selector -->
-            <div class="language-selector">
-                <button class="lang-btn active" onclick="changeLanguage('en')" data-lang="en">
+            <div class="language-selector" style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px;">
+                <button class="lang-btn active" onclick="changeLanguage('en')" data-lang="en" style="padding: 8px 16px; border-radius: 20px; border: 2px solid white; background: white; color: #11998e; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
                     <i class="fas fa-globe"></i> English
                 </button>
-                <button class="lang-btn" onclick="changeLanguage('ms')" data-lang="ms">
+                <button class="lang-btn" onclick="changeLanguage('ms')" data-lang="ms" style="padding: 8px 16px; border-radius: 20px; border: 2px solid white; background: transparent; color: white; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
                     <i class="fas fa-globe"></i> Melayu
                 </button>
-                <button class="lang-btn" onclick="changeLanguage('zh')" data-lang="zh">
+                <button class="lang-btn" onclick="changeLanguage('zh')" data-lang="zh" style="padding: 8px 16px; border-radius: 20px; border: 2px solid white; background: transparent; color: white; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
                     <i class="fas fa-globe"></i> 中文
                 </button>
             </div>
-            
             <h1><i class="fas fa-brain"></i> <span data-translate="header-title">Knowledge Quiz</span></h1>
             <p class="subtitle" data-translate="header-subtitle">Test your knowledge about Rumah Penghulu Abu Seman</p>
         </header>
@@ -529,14 +481,14 @@
                 </button>
                 <a href="index.html" class="btn btn-secondary">
                     <i class="fas fa-home"></i>
-                    <span data-translate="home-btn">Back to Main Page</span>
+                    <span data-translate="back-btn">Back to Main Page</span>
                 </a>
             </div>
         </div>
     </div>
     
     <script>
-        // Translation data
+        // Translations
         const translations = {
             en: {
                 'header-title': 'Knowledge Quiz',
@@ -544,133 +496,238 @@
                 'submit-btn': 'Submit Quiz',
                 'score-label': 'out of 4',
                 'retake-btn': 'Retake Quiz',
-                'home-btn': 'Back to Main Page',
+                'back-btn': 'Back to Main Page',
                 'correct-feedback': 'Correct!',
                 'incorrect-feedback': 'Incorrect. The correct answer is:',
-                'perfect-score': '🎉 Perfect Score!',
-                'perfect-details': 'Outstanding! You have excellent knowledge about Rumah Penghulu Abu Seman.',
-                'great-score': '🌟 Great Job!',
-                'great-details': 'Well done! You have a good understanding of traditional Malay architecture.',
-                'good-score': '👍 Good Effort!',
-                'good-details': 'Not bad! Review the content to learn more about the pillars.',
-                'improve-score': '📚 Keep Learning!',
-                'improve-details': 'Take your time to explore the content and try again!'
+                'result-perfect': '🎉 Perfect Score!',
+                'result-perfect-detail': 'Outstanding! You have excellent knowledge about Rumah Penghulu Abu Seman.',
+                'result-great': '🌟 Great Job!',
+                'result-great-detail': 'Well done! You have a good understanding of traditional Malay architecture.',
+                'result-good': '👍 Good Effort!',
+                'result-good-detail': 'Not bad! Review the content to learn more about the pillars.',
+                'result-improve': '📚 Keep Learning!',
+                'result-improve-detail': 'Take your time to explore the content and try again!'
             },
             ms: {
                 'header-title': 'Kuiz Pengetahuan',
                 'header-subtitle': 'Uji pengetahuan anda tentang Rumah Penghulu Abu Seman',
                 'submit-btn': 'Hantar Kuiz',
                 'score-label': 'daripada 4',
-                'retake-btn': 'Ambil Kuiz Semula',
-                'home-btn': 'Kembali ke Halaman Utama',
+                'retake-btn': 'Ambil Semula Kuiz',
+                'back-btn': 'Kembali ke Halaman Utama',
                 'correct-feedback': 'Betul!',
                 'incorrect-feedback': 'Salah. Jawapan yang betul ialah:',
-                'perfect-score': '🎉 Skor Sempurna!',
-                'perfect-details': 'Luar biasa! Anda mempunyai pengetahuan yang sangat baik tentang Rumah Penghulu Abu Seman.',
-                'great-score': '🌟 Kerja Bagus!',
-                'great-details': 'Tahniah! Anda mempunyai pemahaman yang baik tentang seni bina tradisional Melayu.',
-                'good-score': '👍 Usaha Bagus!',
-                'good-details': 'Tidak buruk! Semak semula kandungan untuk mengetahui lebih lanjut tentang tiang-tiang.',
-                'improve-score': '📚 Terus Belajar!',
-                'improve-details': 'Ambil masa anda untuk meneroka kandungan dan cuba lagi!'
+                'result-perfect': '🎉 Markah Sempurna!',
+                'result-perfect-detail': 'Cemerlang! Anda mempunyai pengetahuan yang sangat baik tentang Rumah Penghulu Abu Seman.',
+                'result-great': '🌟 Bagus!',
+                'result-great-detail': 'Syabas! Anda mempunyai pemahaman yang baik tentang seni bina tradisional Melayu.',
+                'result-good': '👍 Usaha yang Baik!',
+                'result-good-detail': 'Tidak buruk! Semak semula kandungan untuk mengetahui lebih lanjut tentang tiang.',
+                'result-improve': '📚 Terus Belajar!',
+                'result-improve-detail': 'Luangkan masa untuk meneroka kandungan dan cuba lagi!'
             },
             zh: {
-                'header-title': '知识问卷',
-                'header-subtitle': '测试您对 Rumah Penghulu Abu Seman 的了解程度',
+                'header-title': '知识测验',
+                'header-subtitle': '测试您对 Rumah Penghulu Abu Seman 的了解',
                 'submit-btn': '提交测验',
-                'score-label': '总分 4',
-                'retake-btn': '重新参加测验',
-                'home-btn': '返回主页',
+                'score-label': '满分 4',
+                'retake-btn': '重新测验',
+                'back-btn': '返回主页',
                 'correct-feedback': '正确！',
                 'incorrect-feedback': '错误。正确答案是：',
-                'perfect-score': '🎉 完美分数！',
-                'perfect-details': '出色！您对 Rumah Penghulu Abu Seman 有出色的了解。',
-                'great-score': '🌟 干得好！',
-                'great-details': '做得很好！您对传统马来建筑有很好的理解。',
-                'good-score': '👍 努力不错！',
-                'good-details': '还不错！查看内容以了解更多关于柱子的信息。',
-                'improve-score': '📚 继续学习！',
-                'improve-details': '花时间探索内容并重新尝试！'
+                'result-perfect': '🎉 满分！',
+                'result-perfect-detail': '太棒了！您对 Rumah Penghulu Abu Seman 有很好的了解。',
+                'result-great': '🌟 做得好！',
+                'result-great-detail': '干得好！您对传统马来建筑有很好的理解。',
+                'result-good': '👍 不错的努力！',
+                'result-good-detail': '还不错！复习内容以了解更多关于柱子的信息。',
+                'result-improve': '📚 继续学习！',
+                'result-improve-detail': '花时间探索内容并再试一次！'
             }
         };
-        
+
+        // Quiz Data with multilingual questions
+        const quizDataMultilang = {
+            en: [
+                {
+                    question: "Why was the construction method of Rumah Penghulu Abu Seman considered meticulous?",
+                    options: [
+                        "It used only bricks and mortar",
+                        "It allowed the house to be easily deconstructed and moved",
+                        "It required advanced machinery",
+                        "It was built entirely underground"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "What is a key climatic design principle of traditional Malay houses mentioned in the text?",
+                    options: [
+                        "Underground basements",
+                        "Elevated floors for cross ventilation",
+                        "Thick stone walls",
+                        "Solar panels on the roof"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Rumah Penghulu Abu Seman was originally located in which Malaysian state before being rebuilt in Kuala Lumpur?",
+                    options: [
+                        "Penang",
+                        "Selangor",
+                        "Kedah",
+                        "Johor"
+                    ],
+                    correct: 2
+                },
+                {
+                    question: "Which ancient technology allowed Rumah Penghulu Abu Seman to be dismantled and moved to a new location?",
+                    options: [
+                        "Prefabricated timber elements joined without nails",
+                        "Concrete slab construction",
+                        "Prefabricated steel technology",
+                        "Modular plastic panels"
+                    ],
+                    correct: 0
+                }
+            ],
+            ms: [
+                {
+                    question: "Mengapa kaedah pembinaan Rumah Penghulu Abu Seman dianggap teliti?",
+                    options: [
+                        "Ia hanya menggunakan batu bata dan mortar",
+                        "Ia membenarkan rumah dibongkar dan dipindahkan dengan mudah",
+                        "Ia memerlukan jentera canggih",
+                        "Ia dibina sepenuhnya di bawah tanah"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Apakah prinsip reka bentuk iklim utama rumah tradisional Melayu yang dinyatakan dalam teks?",
+                    options: [
+                        "Ruang bawah tanah",
+                        "Lantai tinggi untuk pengudaraan silang",
+                        "Dinding batu tebal",
+                        "Panel solar di atas bumbung"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Rumah Penghulu Abu Seman pada asalnya terletak di negeri Malaysia yang mana sebelum dibina semula di Kuala Lumpur?",
+                    options: [
+                        "Pulau Pinang",
+                        "Selangor",
+                        "Kedah",
+                        "Johor"
+                    ],
+                    correct: 2
+                },
+                {
+                    question: "Teknologi purba manakah yang membolehkan Rumah Penghulu Abu Seman dibongkar dan dipindahkan ke lokasi baru?",
+                    options: [
+                        "Elemen kayu siap pasang yang disambung tanpa paku",
+                        "Pembinaan papak konkrit",
+                        "Teknologi keluli siap pasang",
+                        "Panel plastik modular"
+                    ],
+                    correct: 0
+                }
+            ],
+            zh: [
+                {
+                    question: "为什么 Rumah Penghulu Abu Seman 的建造方法被认为是精密的？",
+                    options: [
+                        "它只使用砖和砂浆",
+                        "它允许房屋轻松拆卸和移动",
+                        "它需要先进的机械",
+                        "它完全建在地下"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "文本中提到的传统马来房屋的关键气候设计原则是什么？",
+                    options: [
+                        "地下室",
+                        "抬高地板以实现交叉通风",
+                        "厚石墙",
+                        "屋顶太阳能板"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Rumah Penghulu Abu Seman 在吉隆坡重建之前最初位于马来西亚哪个州？",
+                    options: [
+                        "槟城",
+                        "雪兰莪",
+                        "吉打",
+                        "柔佛"
+                    ],
+                    correct: 2
+                },
+                {
+                    question: "哪种古老技术使 Rumah Penghulu Abu Seman 能够被拆除并移至新位置？",
+                    options: [
+                        "无需钉子连接的预制木材元素",
+                        "混凝土板建造",
+                        "预制钢技术",
+                        "模块化塑料板"
+                    ],
+                    correct: 0
+                }
+            ]
+        };
+
         // Current language
         let currentLang = 'en';
-        
+        let quizData = quizDataMultilang[currentLang];
+
         // Change language function
         function changeLanguage(lang) {
             currentLang = lang;
+            quizData = quizDataMultilang[lang];
             
-            // Update all translated elements
+            // Update language buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.getAttribute('data-lang') === lang) {
+                    btn.classList.add('active');
+                    btn.style.background = 'white';
+                    btn.style.color = '#11998e';
+                } else {
+                    btn.classList.remove('active');
+                    btn.style.background = 'transparent';
+                    btn.style.color = 'white';
+                }
+            });
+            
+            // Update all translatable elements
             document.querySelectorAll('[data-translate]').forEach(element => {
                 const key = element.getAttribute('data-translate');
                 if (translations[lang] && translations[lang][key]) {
-                    element.textContent = translations[lang][key];
+                    element.innerHTML = translations[lang][key];
                 }
             });
             
-            // Update active button
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.getAttribute('data-lang') === lang) {
-                    btn.classList.add('active');
-                }
-            });
-            
-            // Save preference to localStorage
+            // Save language preference
             localStorage.setItem('preferredLanguage', lang);
+            
+            // Reset and reinitialize quiz with new language
+            userAnswers = new Array(quizData.length).fill(null);
+            quizCompleted = false;
+            quizStarted = false;
+            document.getElementById('quizContainer').innerHTML = '';
+            document.getElementById('submitBtn').style.display = 'flex';
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('resultsCard').classList.remove('show');
+            initQuiz();
         }
-        
-        // Load saved language preference on page load
+
+        // Load saved language on page load
         window.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('preferredLanguage');
-            if (savedLang && translations[savedLang]) {
+            if (savedLang && quizDataMultilang[savedLang]) {
                 changeLanguage(savedLang);
             }
         });
-        
-        const quizData = [
-            {
-                question: "Why was the construction method of Rumah Penghulu Abu Seman considered meticulous?",
-                options: [
-                    "It used only bricks and mortar",
-                    "It allowed the house to be easily deconstructed and moved",
-                    "It required advanced machinery",
-                    "It was built entirely underground"
-                ],
-                correct: 1
-            },
-            {
-                question: "What is a key climatic design principle of traditional Malay houses mentioned in the text?",
-                options: [
-                    "Underground basements",
-                    "Elevated floors for cross ventilation",
-                    "Thick stone walls",
-                    "Solar panels on the roof"
-                ],
-                correct: 1
-            },
-            {
-                question: "Rumah Penghulu Abu Seman was originally located in which Malaysian state before being rebuilt in Kuala Lumpur?",
-                options: [
-                    "Penang",
-                    "Selangor",
-                    "Kedah",
-                    "Johor"
-                ],
-                correct: 2
-            },
-            {
-                question: "Which ancient technology allowed Rumah Penghulu Abu Seman to be dismantled and moved to a new location?",
-                options: [
-                    "Prefabricated timber elements joined without nails",
-                    "Concrete slab construction",
-                    "Prefabricated steel technology",
-                    "Modular plastic panels"
-                ],
-                correct: 0
-            }
-        ];
         
         let userAnswers = new Array(quizData.length).fill(null);
         let quizStarted = false;
@@ -806,13 +863,11 @@
                 // Show feedback
                 const feedback = document.getElementById(`feedback-${qIndex}`);
                 feedback.className = `feedback show ${isCorrect ? 'correct' : 'incorrect'}`;
-                const feedbackKey = isCorrect ? 'correct-feedback' : 'incorrect-feedback';
-                const feedbackText = isCorrect 
-                    ? translations[currentLang][feedbackKey]
-                    : translations[currentLang][feedbackKey] + ' ' + q.options[q.correct];
+                const correctText = translations[currentLang]['correct-feedback'];
+                const incorrectText = translations[currentLang]['incorrect-feedback'];
                 feedback.innerHTML = `
                     <i class="fas fa-${isCorrect ? 'check-circle' : 'times-circle'}"></i>
-                    <span>${feedbackText}</span>
+                    <span>${isCorrect ? correctText : incorrectText + ' ' + q.options[q.correct]}</span>
                 `;
             });
             
@@ -837,28 +892,28 @@
             scoreNumber.textContent = score;
             
             // Set message and style based on score
-            let category, messageKey, detailsKey;
+            let category, message, details;
             if (score === 4) {
                 category = 'excellent';
-                messageKey = 'perfect-score';
-                detailsKey = 'perfect-details';
+                message = translations[currentLang]['result-perfect'];
+                details = translations[currentLang]['result-perfect-detail'];
             } else if (score >= 3) {
                 category = 'excellent';
-                messageKey = 'great-score';
-                detailsKey = 'great-details';
+                message = translations[currentLang]['result-great'];
+                details = translations[currentLang]['result-great-detail'];
             } else if (score >= 2) {
                 category = 'good';
-                messageKey = 'good-score';
-                detailsKey = 'good-details';
+                message = translations[currentLang]['result-good'];
+                details = translations[currentLang]['result-good-detail'];
             } else {
                 category = 'needs-improvement';
-                messageKey = 'improve-score';
-                detailsKey = 'improve-details';
+                message = translations[currentLang]['result-improve'];
+                details = translations[currentLang]['result-improve-detail'];
             }
             
             scoreCircle.className = `score-circle ${category}`;
-            resultsMessage.textContent = translations[currentLang][messageKey];
-            resultsDetails.textContent = translations[currentLang][detailsKey];
+            resultsMessage.textContent = message;
+            resultsDetails.textContent = details;
             
             // Track completion
             trackQuizCompletion(score, percentage);
